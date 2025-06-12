@@ -63,7 +63,7 @@ export default function HomePage() {
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(Array.from(newStore.entries())));
     } catch (error) {
       console.error("Failed to save encoded messages to localStorage", error);
-      // Non-critical for .stegano flow, but good for local
+      // Non-critical for package flow, but good for local
     }
     
     if (imageFile) {
@@ -77,7 +77,7 @@ export default function HomePage() {
 
     toast({
       title: "Encoding Complete",
-      description: "Message has been conceptually prepared. You can now download it as a .stegano package.",
+      description: "Message has been conceptually prepared. You can now download the encoded file.",
       action: <ShieldCheck className="h-5 w-5 text-green-500" />,
     });
     setIsLoading(false);
@@ -85,9 +85,9 @@ export default function HomePage() {
 
   const handleDecode = async (
     imageIdentifier: string, 
-    imageFile?: File, // This could be an image or .stegano file
-    imageUrl?: string,
-    directMessage?: string // If message extracted directly from .stegano file
+    imageFile?: File, // This could be an image or our packaged file
+    imageUrl?: string, // This is if a package was uploaded, its internal imageDataUri
+    directMessage?: string // If message extracted directly from packaged file
   ) => {
     setIsLoading(true);
     setDecodedMessage(null);
@@ -99,7 +99,7 @@ export default function HomePage() {
       setDecodedMessage(directMessage);
       toast({
         title: "Decoding Complete",
-        description: "Message was retrieved from the .stegano file.",
+        description: "Message was retrieved from the uploaded encoded file.",
         action: <ShieldCheck className="h-5 w-5 text-green-500" />,
       });
     } else {
@@ -115,7 +115,7 @@ export default function HomePage() {
       } else {
         toast({
           title: "Decoding Attempted",
-          description: "No message found for this image identifier in local storage, or it's not a .stegano file with an embedded message.",
+          description: "No message found for this image identifier in local storage, or it's not an encoded file with an embedded message.",
           variant: "destructive",
           action: <ShieldAlert className="h-5 w-5 text-yellow-500" />,
         });
@@ -125,12 +125,14 @@ export default function HomePage() {
   };
   
   useEffect(() => {
-    return () => {
-      if (encodedImageToDisplayFile && encodedImageToDisplayUrl?.startsWith('blob:')) {
-        URL.revokeObjectURL(encodedImageToDisplayUrl);
-      }
-    };
-  }, [encodedImageToDisplayFile, encodedImageToDisplayUrl]);
+    // Revoke object URL when component unmounts or when the file/URL changes
+    let currentUrl = encodedImageToDisplayUrl;
+    if (currentUrl && currentUrl.startsWith('blob:')) {
+      return () => {
+        URL.revokeObjectURL(currentUrl);
+      };
+    }
+  }, [encodedImageToDisplayUrl]);
 
 
   return (
