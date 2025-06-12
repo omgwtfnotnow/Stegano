@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -8,11 +9,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { ShieldCheck, ShieldAlert } from 'lucide-react';
 
-// In-memory store for "encoded" messages for the session
-const encodedMessagesStore = new Map<string, string>();
+const LOCAL_STORAGE_KEY = 'steganoEncodedMessages';
 
 export default function HomePage() {
   const [isLoading, setIsLoading] = useState(false);
+  const [encodedMessagesStore, setEncodedMessagesStore] = useState(new Map<string, string>());
   
   // Encode state
   const [encodedImageToDisplayUrl, setEncodedImageToDisplayUrl] = useState<string | null>(null);
@@ -25,6 +26,24 @@ export default function HomePage() {
 
   const { toast } = useToast();
 
+  // Load messages from localStorage on component mount
+  useEffect(() => {
+    try {
+      const storedData = localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (storedData) {
+        const parsedMap = new Map<string, string>(JSON.parse(storedData));
+        setEncodedMessagesStore(parsedMap);
+      }
+    } catch (error) {
+      console.error("Failed to load encoded messages from localStorage", error);
+      toast({
+        title: "Storage Warning",
+        description: "Could not load previously encoded messages.",
+        variant: "destructive",
+      });
+    }
+  }, [toast]);
+
   const handleEncode = async (imageIdentifier: string, message: string, imageFile?: File, imageUrl?: string) => {
     setIsLoading(true);
     setEncodedImageToDisplayUrl(null);
@@ -34,7 +53,20 @@ export default function HomePage() {
     // Simulate encoding delay
     await new Promise(resolve => setTimeout(resolve, 1000));
 
-    encodedMessagesStore.set(imageIdentifier, message);
+    const newStore = new Map(encodedMessagesStore);
+    newStore.set(imageIdentifier, message);
+    setEncodedMessagesStore(newStore);
+
+    try {
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(Array.from(newStore.entries())));
+    } catch (error) {
+      console.error("Failed to save encoded messages to localStorage", error);
+      toast({
+        title: "Storage Error",
+        description: "Could not save message persistently for future sessions. It will be available for this session only.",
+        variant: "destructive",
+      });
+    }
     
     if (imageFile) {
       setEncodedImageToDisplayFile(imageFile);
@@ -71,7 +103,7 @@ export default function HomePage() {
     } else {
       toast({
         title: "Decoding Attempted",
-        description: "No message found for this image in the current session.",
+        description: "No message found for this image identifier.",
         variant: "destructive",
         action: <ShieldAlert className="h-5 w-5 text-yellow-500" />,
       });
