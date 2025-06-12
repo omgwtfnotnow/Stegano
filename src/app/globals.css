@@ -8,65 +8,79 @@ body {
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
-    --destructive: 0 84.2% 60.2%;
+    --background: 60 56% 91%; /* Pale Beige */
+    --foreground: 60 10% 20%; /* Dark Brownish Grey */
+
+    --card: 60 50% 95%; /* Lighter Beige/Off-white for cards */
+    --card-foreground: 60 10% 20%;
+
+    --popover: 60 50% 95%;
+    --popover-foreground: 60 10% 20%;
+
+    --primary: 270 26% 86%; /* Soft Lavender */
+    --primary-foreground: 270 25% 25%; /* Dark Purple */
+
+    --secondary: 270 20% 90%; /* Lighter Lavender */
+    --secondary-foreground: 270 25% 25%;
+
+    --muted: 60 40% 85%; /* Muted beige */
+    --muted-foreground: 60 10% 35%; /* Darker muted text */
+
+    --accent: 265 43% 76%; /* Light Pastel Purple */
+    --accent-foreground: 265 30% 20%; /* Very Dark Purple */
+
+    --destructive: 0 70% 60%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 0 0% 3.9%;
+
+    --border: 270 15% 78%; /* Lavender-tinged border */
+    --input: 270 20% 92%; /* Light lavender-ish input background */
+    --ring: 265 43% 65%; /* Accent-based ring */
+
     --chart-1: 12 76% 61%;
     --chart-2: 173 58% 39%;
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
-    --sidebar-primary: 240 5.9% 10%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Sidebar specific colors - can keep defaults or align with new theme */
+    --sidebar-background: 270 20% 94%; /* Lighter lavender for sidebar */
+    --sidebar-foreground: 270 25% 30%;
+    --sidebar-primary: 265 43% 76%; /* Accent for sidebar primary */
+    --sidebar-primary-foreground: 265 30% 20%;
+    --sidebar-accent: 270 26% 86%; /* Primary for sidebar accent */
+    --sidebar-accent-foreground: 270 25% 25%;
+    --sidebar-border: 270 15% 78%;
+    --sidebar-ring: 265 43% 65%;
   }
+
   .dark {
-    --background: 0 0% 3.9%;
+    /* Keeping dark mode defaults for now, can be updated if needed */
+    --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
+    --card: 240 10% 3.9%;
     --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
+    --popover: 240 10% 3.9%;
     --popover-foreground: 0 0% 98%;
     --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
+    --primary-foreground: 240 5.9% 10%;
+    --secondary: 240 3.7% 15.9%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
     --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
     --chart-1: 220 70% 50%;
     --chart-2: 160 60% 45%;
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
+
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;

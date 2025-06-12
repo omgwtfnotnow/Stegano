@@ -12,7 +12,7 @@ export default {
       fontFamily: {
         body: ['Inter', 'sans-serif'],
         headline: ['Inter', 'sans-serif'],
-        code: ['monospace'],
+        code: ['monospace', 'Menlo', 'Consolas', '"Liberation Mono"', '"Courier New"'],
       },
       colors: {
         background: 'hsl(var(--background))',
