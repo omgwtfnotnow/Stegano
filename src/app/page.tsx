@@ -15,10 +15,11 @@ export default function HomePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [encodedMessagesStore, setEncodedMessagesStore] = useState(new Map<string, string>());
   
-  // Encode state
+  // Encode state - these are for the preview after encoding, before download
   const [encodedImageToDisplayUrl, setEncodedImageToDisplayUrl] = useState<string | null>(null);
   const [encodedImageToDisplayFile, setEncodedImageToDisplayFile] = useState<File | null>(null);
   const [encodedImageIdentifier, setEncodedImageIdentifier] = useState<string | null>(null);
+  const [lastEncodedMessage, setLastEncodedMessage] = useState<string | null>(null);
 
 
   // Decode state
@@ -26,7 +27,6 @@ export default function HomePage() {
 
   const { toast } = useToast();
 
-  // Load messages from localStorage on component mount
   useEffect(() => {
     try {
       const storedData = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -38,7 +38,7 @@ export default function HomePage() {
       console.error("Failed to load encoded messages from localStorage", error);
       toast({
         title: "Storage Warning",
-        description: "Could not load previously encoded messages.",
+        description: "Could not load previously encoded messages from local storage.",
         variant: "destructive",
       });
     }
@@ -49,6 +49,7 @@ export default function HomePage() {
     setEncodedImageToDisplayUrl(null);
     setEncodedImageToDisplayFile(null);
     setEncodedImageIdentifier(null);
+    setLastEncodedMessage(null);
 
     // Simulate encoding delay
     await new Promise(resolve => setTimeout(resolve, 1000));
@@ -56,62 +57,73 @@ export default function HomePage() {
     const newStore = new Map(encodedMessagesStore);
     newStore.set(imageIdentifier, message);
     setEncodedMessagesStore(newStore);
+    setLastEncodedMessage(message); // Store for potential packaging by EncodeForm
 
     try {
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(Array.from(newStore.entries())));
     } catch (error) {
       console.error("Failed to save encoded messages to localStorage", error);
-      toast({
-        title: "Storage Error",
-        description: "Could not save message persistently for future sessions. It will be available for this session only.",
-        variant: "destructive",
-      });
+      // Non-critical for .stegano flow, but good for local
     }
     
     if (imageFile) {
-      setEncodedImageToDisplayFile(imageFile);
-      setEncodedImageToDisplayUrl(URL.createObjectURL(imageFile)); // For preview
+      setEncodedImageToDisplayFile(imageFile); // This is the original file
+      setEncodedImageToDisplayUrl(URL.createObjectURL(imageFile)); 
     } else if (imageUrl) {
-      setEncodedImageToDisplayUrl(imageUrl);
+      setEncodedImageToDisplayUrl(imageUrl); // This is the original URL
     }
     setEncodedImageIdentifier(imageIdentifier);
 
+
     toast({
       title: "Encoding Complete",
-      description: "Message has been conceptually hidden in the image.",
+      description: "Message has been conceptually prepared. You can now download it as a .stegano package.",
       action: <ShieldCheck className="h-5 w-5 text-green-500" />,
     });
     setIsLoading(false);
   };
 
-  const handleDecode = async (imageIdentifier: string, imageFile?: File, imageUrl?: string) => {
+  const handleDecode = async (
+    imageIdentifier: string, 
+    imageFile?: File, // This could be an image or .stegano file
+    imageUrl?: string,
+    directMessage?: string // If message extracted directly from .stegano file
+  ) => {
     setIsLoading(true);
     setDecodedMessage(null);
 
     // Simulate decoding delay
     await new Promise(resolve => setTimeout(resolve, 1000));
 
-    const foundMessage = encodedMessagesStore.get(imageIdentifier);
-    setDecodedMessage(foundMessage || ""); // Empty string if not found, to trigger "no message" UI
-
-    if (foundMessage) {
+    if (directMessage !== undefined && directMessage !== null) {
+      setDecodedMessage(directMessage);
       toast({
         title: "Decoding Complete",
-        description: "A message was retrieved from the image.",
+        description: "Message was retrieved from the .stegano file.",
         action: <ShieldCheck className="h-5 w-5 text-green-500" />,
       });
     } else {
-      toast({
-        title: "Decoding Attempted",
-        description: "No message found for this image identifier.",
-        variant: "destructive",
-        action: <ShieldAlert className="h-5 w-5 text-yellow-500" />,
-      });
+      const foundMessage = encodedMessagesStore.get(imageIdentifier);
+      setDecodedMessage(foundMessage || ""); 
+
+      if (foundMessage) {
+        toast({
+          title: "Decoding Complete",
+          description: "Message was retrieved from local storage for this image identifier.",
+          action: <ShieldCheck className="h-5 w-5 text-green-500" />,
+        });
+      } else {
+        toast({
+          title: "Decoding Attempted",
+          description: "No message found for this image identifier in local storage, or it's not a .stegano file with an embedded message.",
+          variant: "destructive",
+          action: <ShieldAlert className="h-5 w-5 text-yellow-500" />,
+        });
+      }
     }
     setIsLoading(false);
   };
   
-  // Clean up object URLs for encoded image preview if it's a file
   useEffect(() => {
     return () => {
       if (encodedImageToDisplayFile && encodedImageToDisplayUrl?.startsWith('blob:')) {
@@ -139,9 +151,10 @@ export default function HomePage() {
               <EncodeForm 
                 onEncode={handleEncode} 
                 isLoading={isLoading} 
-                encodedImageUrl={encodedImageToDisplayUrl}
-                encodedImageFile={encodedImageToDisplayFile}
+                encodedImageUrl={encodedImageToDisplayUrl} // original image url for preview
+                encodedImageFile={encodedImageToDisplayFile} // original image file for preview & packaging
                 encodedImageIdentifier={encodedImageIdentifier}
+                lastEncodedMessage={lastEncodedMessage} // message to package
               />
             </TabsContent>
             <TabsContent value="decode">
